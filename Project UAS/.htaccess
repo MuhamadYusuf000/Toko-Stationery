@@ -1,0 +1,16 @@
+RewriteEngine On
+RewriteBase /
+
+# Handle API requests
+RewriteCond %{REQUEST_URI} ^/api\.php [NC]
+RewriteRule ^ - [L]
+
+# Redirect everything else to index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.html [L]
+
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
