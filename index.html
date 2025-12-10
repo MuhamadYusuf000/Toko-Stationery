@@ -1487,10 +1487,10 @@
             </p>
             
             <div class="landing-buttons">
-                <button class="btn btn-primary" onclick="showLoginModal('pembeli')">
+                <button class="btn btn-primary" id="btn-landing-pembeli">
                     <span>👤</span> Masuk sebagai Pembeli
                 </button>
-                <button class="btn btn-outline" onclick="showLoginModal('admin')">
+                <button class="btn btn-outline" id="btn-landing-admin">
                     <span>⚙️</span> Masuk sebagai Admin
                 </button>
             </div>
@@ -1543,16 +1543,16 @@
             </div>
         </div>
         <nav class="nav-links">
-            <a href="#" onclick="showSection('beranda')">Beranda</a>
-            <a href="#" onclick="showSection('tentang')">Tentang Kami</a>
-            <a href="#" onclick="showSection('produk')">Produk</a>
-            <a href="#" onclick="showSection('admin')" id="admin-link" style="display: none;">Database Produk</a>
-            <a href="#" onclick="showSection('kritik')" id="kritik-link">Kritik & Saran</a>
+            <a href="#" id="nav-beranda">Beranda</a>
+            <a href="#" id="nav-tentang">Tentang Kami</a>
+            <a href="#" id="nav-produk">Produk</a>
+            <a href="#" id="nav-admin" style="display: none;">Database Produk</a>
+            <a href="#" id="nav-kritik">Kritik & Saran</a>
         </nav>
         <div class="nav-right">
             <div id="user-info" class="user-info" style="display: none;">
                 <span id="user-name">User</span>
-                <button class="logout-btn" onclick="logout()">Keluar</button>
+                <button class="logout-btn" id="btn-logout">Keluar</button>
             </div>
             <button class="cart-btn" id="btn-open-cart" style="display: none;">
                 🛒 <span>Keranjang</span>
@@ -1574,8 +1574,8 @@
                         pada database yang sudah terintegrasi.
                     </p>
                     <div class="hero-actions">
-                        <a href="#" onclick="showSection('produk')" class="btn btn-primary">Lihat Produk</a>
-                        <a href="#" onclick="showSection('admin')" class="btn btn-outline" id="admin-btn" style="display: none;">Kelola Database</a>
+                        <button class="btn btn-primary" id="btn-hero-produk">Lihat Produk</button>
+                        <button class="btn btn-outline" id="btn-hero-admin" style="display: none;">Kelola Database</button>
                     </div>
                     <div class="hero-badges">
                         <span>📊 Tabel produk</span>
@@ -1869,11 +1869,11 @@
     <!-- LOGIN MODAL -->
     <div id="login-modal" class="modal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeLoginModal()">✕</button>
+            <button class="modal-close" id="btn-close-modal">✕</button>
             
             <div class="login-tabs">
-                <button class="tab-btn active" onclick="switchTab('pembeli')">Pembeli</button>
-                <button class="tab-btn" onclick="switchTab('admin')">Admin</button>
+                <button class="tab-btn active" id="tab-pembeli">Pembeli</button>
+                <button class="tab-btn" id="tab-admin">Admin</button>
             </div>
 
             <!-- Login Pembeli -->
@@ -2030,18 +2030,12 @@
                 btn.classList.remove('active');
             });
             
-            // Find and activate clicked tab
-            const tabs = document.querySelectorAll('.tab-btn');
-            tabs.forEach(tab => {
-                if (tab.textContent.includes(type === 'pembeli' ? 'Pembeli' : 'Admin')) {
-                    tab.classList.add('active');
-                }
-            });
-
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
+            
+            document.getElementById('tab-' + type).classList.add('active');
             document.getElementById(type + '-tab').classList.add('active');
         }
 
@@ -2071,9 +2065,9 @@
         function updateUIForUser() {
             const userInfo = document.getElementById('user-info');
             const cartBtn = document.getElementById('btn-open-cart');
-            const adminLink = document.getElementById('admin-link');
-            const adminBtn = document.getElementById('admin-btn');
-            const kritikLink = document.getElementById('kritik-link');
+            const adminLink = document.getElementById('nav-admin');
+            const adminBtn = document.getElementById('btn-hero-admin');
+            const kritikLink = document.getElementById('nav-kritik');
 
             if (currentUser) {
                 userInfo.style.display = 'flex';
@@ -2095,7 +2089,7 @@
                 cartBtn.style.display = 'none';
                 adminLink.style.display = 'none';
                 adminBtn.style.display = 'none';
-                kritikLink.style.display = 'none';
+                kritikLink.style.display = 'inline'; // Kritik bisa diakses tanpa login
             }
         }
 
@@ -2162,7 +2156,7 @@
             if (sectionId === 'landing') {
                 document.getElementById('landing').classList.add('active');
             } else {
-                if (!currentUser) {
+                if (!currentUser && sectionId !== 'kritik') {
                     showLoginModal('pembeli');
                     return;
                 }
@@ -2177,9 +2171,14 @@
                         <div class="access-denied">
                             <h2>🚫 Akses Ditolak</h2>
                             <p>Anda tidak memiliki izin untuk mengakses halaman admin. Silakan login sebagai admin.</p>
-                            <button class="btn btn-primary" onclick="showLoginModal('admin')">Login sebagai Admin</button>
+                            <button class="btn btn-primary" id="btn-login-admin-modal">Login sebagai Admin</button>
                         </div>
                     `;
+                    
+                    // Add event listener for the button
+                    document.getElementById('btn-login-admin-modal')?.addEventListener('click', () => {
+                        showLoginModal('admin');
+                    });
                     return;
                 }
 
@@ -2765,6 +2764,77 @@
         });
 
         // ==============================
+        //  EVENT LISTENERS SETUP
+        // ==============================
+        function setupEventListeners() {
+            // Landing page buttons
+            document.getElementById('btn-landing-pembeli')?.addEventListener('click', () => {
+                showLoginModal('pembeli');
+            });
+            
+            document.getElementById('btn-landing-admin')?.addEventListener('click', () => {
+                showLoginModal('admin');
+            });
+            
+            // Navigation
+            document.getElementById('nav-beranda')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('beranda');
+            });
+            
+            document.getElementById('nav-tentang')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('tentang');
+            });
+            
+            document.getElementById('nav-produk')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('produk');
+            });
+            
+            document.getElementById('nav-kritik')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('kritik');
+            });
+            
+            document.getElementById('nav-admin')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('admin');
+            });
+            
+            // Hero buttons
+            document.getElementById('btn-hero-produk')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('produk');
+            });
+            
+            document.getElementById('btn-hero-admin')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('admin');
+            });
+            
+            // Modal
+            document.getElementById('btn-close-modal')?.addEventListener('click', closeLoginModal);
+            document.getElementById('login-modal')?.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('login-modal')) {
+                    closeLoginModal();
+                }
+            });
+            
+            // Login tabs
+            document.getElementById('tab-pembeli')?.addEventListener('click', () => {
+                switchTab('pembeli');
+            });
+            
+            document.getElementById('tab-admin')?.addEventListener('click', () => {
+                switchTab('admin');
+            });
+            
+            // Logout button
+            document.getElementById('btn-logout')?.addEventListener('click', logout);
+        }
+
+        // ==============================
         //  INITIALIZATION
         // ==============================
         function init() {
@@ -2774,6 +2844,9 @@
             renderProduk(getFilteredSortedProduk());
             renderTabelAdmin();
             renderCart();
+            
+            // Setup event listeners
+            setupEventListeners();
             
             // Show welcome message on first load
             if (!localStorage.getItem('firstLoad')) {
